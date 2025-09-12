@@ -1,0 +1,63 @@
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Quark.Enums.Colors
+@using Soenneker.Quark.Divs
+@using Soenneker.Quark.Buttons
+@using ButtonType = Soenneker.Quark.Buttons.Enums.ButtonType
+@inherits Soenneker.Quark.Components.Element
+
+<Div Class="alert" @attributes="BuildAttributes()" role="alert" >
+	@if (Dismissible)
+	{
+		<Button Type="@ButtonType.Button" Class="btn-close" OnClick="HandleDismiss" aria-label="Close" ></Button>
+	}
+	@ChildContent
+</Div>
+
+@code {
+
+	[Parameter]
+	public Color Color { get; set; } = Color.Primary;
+
+	[Parameter]
+	public bool Dismissible { get; set; }
+
+	[Parameter]
+	public bool Show { get; set; } = true;
+
+	[Parameter]
+	public EventCallback OnDismiss { get; set; }
+
+	private string GetColorClass()
+	{
+		return $"alert-{Color.Value}";
+	}
+
+	protected override Dictionary<string, object> BuildAttributes()
+	{
+		Dictionary<string, object> attributes = base.BuildAttributes();
+
+		var baseClasses = "alert";
+		string colorClass = GetColorClass();
+
+		baseClasses = $"{baseClasses} {colorClass}";
+
+		if (Dismissible)
+			baseClasses = $"{baseClasses} alert-dismissible";
+
+		attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")
+			?.ToString(), baseClasses);
+
+		if (!Show)
+			attributes["style"] = "display: none;";
+
+		return attributes;
+	}
+
+	private async Task HandleDismiss()
+	{
+		Show = false;
+		StateHasChanged();
+		await OnDismiss.InvokeIfHasDelegate();
+	}
+
+}
