@@ -1,63 +1,67 @@
 @using Soenneker.Blazor.Extensions.EventCallback
-@using Soenneker.Quark.Enums.Colors
 @using Soenneker.Quark.Divs
 @using Soenneker.Quark.Buttons
-@using ButtonType = Soenneker.Quark.Buttons.Enums.ButtonType
+@using Soenneker.Quark.Dtos.Colors
+@using Soenneker.Quark.Enums.ButtonTypes
+
 @inherits Soenneker.Quark.Components.Element
 
 <Div Class="alert" @attributes="BuildAttributes()" role="alert" >
-	@if (Dismissible)
-	{
-		<Button Type="@ButtonType.Button" Class="btn-close" OnClick="HandleDismiss" aria-label="Close" ></Button>
-	}
-	@ChildContent
+    @if (Dismissible)
+    {
+        <Button Type="@ButtonType.Button" Class="btn-close" OnClick="HandleDismiss" aria-label="Close" ></Button>
+    }
+    @ChildContent
 </Div>
 
 @code {
 
-	[Parameter]
-	public Color Color { get; set; } = Color.Primary;
+    [Parameter]
+    public Color Color { get; set; } = Color.Primary;
 
-	[Parameter]
-	public bool Dismissible { get; set; }
+    [Parameter]
+    public bool Dismissible { get; set; }
 
-	[Parameter]
-	public bool Show { get; set; } = true;
+    [Parameter]
+    public bool Show { get; set; } = true;
 
-	[Parameter]
-	public EventCallback OnDismiss { get; set; }
+    [Parameter]
+    public EventCallback OnDismiss { get; set; }
 
-	private string GetColorClass()
-	{
-		return $"alert-{Color.Value}";
-	}
+    private string? GetColorClass()
+    {
+        if (Color.IsTheme)
+            return $"alert-{Color.Theme!.Value}";
 
-	protected override Dictionary<string, object> BuildAttributes()
-	{
-		Dictionary<string, object> attributes = base.BuildAttributes();
+        return null;
+    }
 
-		var baseClasses = "alert";
-		string colorClass = GetColorClass();
+    protected override Dictionary<string, object> BuildAttributes()
+    {
+        Dictionary<string, object> attributes = base.BuildAttributes();
 
-		baseClasses = $"{baseClasses} {colorClass}";
+        var baseClasses = "alert";
+        string? colorClass = GetColorClass();
 
-		if (Dismissible)
-			baseClasses = $"{baseClasses} alert-dismissible";
+        baseClasses = $"{baseClasses} {colorClass}";
 
-		attributes["class"] = AppendToClass(attributes.GetValueOrDefault("class")
-			?.ToString(), baseClasses);
+        if (Dismissible)
+            baseClasses = $"{baseClasses} alert-dismissible";
 
-		if (!Show)
-			attributes["style"] = "display: none;";
+        AppendToClassAttr(attributes, baseClasses);
 
-		return attributes;
-	}
+        if (!Show)
+            attributes["style"] = "display: none;";
 
-	private async Task HandleDismiss()
-	{
-		Show = false;
-		StateHasChanged();
-		await OnDismiss.InvokeIfHasDelegate();
-	}
+        return attributes;
+    }
+
+    private async Task HandleDismiss()
+    {
+        Show = false;
+        StateHasChanged();
+
+        await OnDismiss.InvokeIfHasDelegate();
+    }
 
 }
