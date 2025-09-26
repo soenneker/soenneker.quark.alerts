@@ -1,9 +1,5 @@
 @using Soenneker.Blazor.Extensions.EventCallback
-@using Soenneker.Quark.Divs
-@using Soenneker.Quark.Buttons
-@using Soenneker.Quark.Components.Builders
-@using Soenneker.Quark.Components.Builders.Colors
-@using Soenneker.Quark.Enums.ButtonTypes
+@using Soenneker.Quark.Enums
 
 @inherits Soenneker.Quark.Element
 
@@ -16,6 +12,7 @@
 </Div>
 
 @code {
+	public override string? Name { get; set; } = "Alert";
 
     [Parameter]
     public CssValue<ColorBuilder>? Color { get; set; }
